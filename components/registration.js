@@ -5,37 +5,39 @@ const router = Router()
 
 
 router.post('/', async (req, res) => {
+
    const connection = await mysql.createConnection({
+      
       host: "localhost",
       user: "root",
       database: "site",
       password: ""
+
    }).promise()
 
-   const { date_registration , name , email , password } = await req.body
-   await console.log(date_registration , name , email , password)
+   const { date_registration , login , email , password } = await req.body
    
    try{
 
       const hashedPassword = await hash( password , 10 )
       
-      await connection.query(`INSERT user( name , email , date_registration , password , folder) VALUES( '${name}' , '${email}' , '${date_registration}' ,' ${hashedPassword}' , '${ name }' ) `)
+      await connection.query(`INSERT user( login , email , date_registration , password , folder) VALUES( '${login}' , '${email}' , '${date_registration}' ,' ${hashedPassword}' , '${ login }' ) `)
       .then( async () => {
 
          await connection.end()
-         await res.send({message: 'Регистрация прошла успешно!'})
+         await res.status(201).send({message: 'Регистрация прошла успешно!'})
 
       }).catch( async ( error ) => {
          
          if(error.message.match(/Duplicate entry/)){
 
             await connection.end()
-            await res.send({message: 'Такой логин или пароль уже зарегестрированы!'})
+            await res.status(304).send({message: 'Такой логин или email уже используются!'})
 
          }else{
 
             await connection.end()
-            await res.send({message: 'Неизвестная ошибка'})
+            await res.status(500).send({message: 'Неизвестная ошибка'})
             
          }
       })
@@ -43,7 +45,7 @@ router.post('/', async (req, res) => {
    }catch ( error ) {
 
       await connection.end()
-      await res.send({message: 'Неизвестная ошибка'})
+      await res.status(500).send({message: 'Неизвестная ошибка'})
 
    }
 })

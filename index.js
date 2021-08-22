@@ -25,6 +25,8 @@ server.use(
 
 
 server.use('/register', require('./components/registration'))
+server.use('/login', require('./components/authentication'))
+
 
 server.listen(PORT, () => {
     console.log('server work!')
