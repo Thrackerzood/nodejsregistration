@@ -27,6 +27,7 @@ router.post('/', async (req, res) => {
       return new Promise( async (resolve, reject) => {
 
          connection.query(`SELECT * FROM user WHERE (email = '${email}')`, async (error, result) => {
+            await connection.end()
             if(error){
 
                reject(error)
@@ -46,8 +47,9 @@ router.post('/', async (req, res) => {
       })
          }else{
             return new Promise( async (resolve, reject) => {
-
+               
                connection.query(`SELECT * FROM user WHERE (login = '${login}')`, async (error, result) => {
+                  await connection.end()
                   if(error){
 
                      reject(error)
@@ -74,19 +76,46 @@ router.post('/', async (req, res) => {
 
          const setToken = await creatAccessToken(result[0].id)
          const refreshToken = await creatRefreshToken(result[0].id)
+         const connection = await mysql.createConnection({
 
-         await res.status(200).send({message: 'Вы вошли'})
-
-         
-        
+            host: "localhost",
+            user: "root",
+            database: "site",
+            password: ""
+      
+         }).promise()
+         if(login === undefined){
+            await connection.query(`UPDATE user SET token ='${refreshToken}'  WHERE email = '${email}'`)
+            .then(()=> {
+               res.status(200).send('Добро пожаловать!')
+            })
+            .catch((error) => {
+               res.status(500).send('неизвестная ошибка')
+            })
+            .finally(()=> {
+               connection.end()
+            })
+         }
+         if(email === undefined){
+            await connection.query(`UPDATE user SET token ='${refreshToken}'  WHERE login = '${login}'`)
+            .then(()=> {
+               res.status(200).send('Добро пожаловать!')
+            })
+            .catch((error) => {
+               console.log(error)
+               res.status(500).send('неизвестная ошибка')
+            })
+            .finally(()=> {
+               connection.end()
+            })
+         }else{
+            connection.end()
+            res.status(500).send('неизвестная ошибка')
+         }
       })
-      .catch( async (error) => {
+      .catch((error) => {
          console.log(error)
-         await res.status(500).send('логин или пароль не совпадают')
-      })
-      .finally( () => {
-
-         connection.end()
+         res.status(403).send('логин или пароль не совпадают')
       })
    }
 })
