@@ -26,7 +26,9 @@ server.use(
 
 server.use('/register', require('./components/registration'))
 server.use('/login', require('./components/authentication'))
-
+server.use('/logout', require('./components/logout'))
+server.use('/protected', require('./components/protected'))
+server.use('/refresh', require('./components/refreshToken'))
 
 server.listen(PORT, () => {
     console.log('server work!')

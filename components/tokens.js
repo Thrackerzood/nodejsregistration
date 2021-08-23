@@ -12,7 +12,32 @@ const creatRefreshToken = (userId) => {
    })
 }
 
+const sendAccessToken = ( res, req, accessToken ) => {
+   if(req.body.email === undefined){
+      res.send({
+         accessToken,
+         login: req.body.login
+      })
+   }
+   if(req.body.login === undefined){
+   res.send({
+         accessToken,
+         email: req.body.email
+      })
+   }  
+}
+
+const sendRefreshToken = (res, refreshToken ) => {
+   res.cookie('refreshToken' , refreshToken , {
+      httpOnly: true,
+      path: '/refresh',
+   })
+}
+
+
 module.exports = {
    creatAccessToken,
-   creatRefreshToken
+   creatRefreshToken,
+   sendAccessToken,
+   sendRefreshToken
 }
