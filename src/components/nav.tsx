@@ -6,11 +6,28 @@ import Home from "../page/home";
 import LogOut from "../page/logOut";
 import Registration from "../page/registration";
 import { NavS } from "../style/style";
+import { useEffect } from 'react';
+import { useState } from 'react';
 
 export default function Nav() {
 
    const [user] = useContext(UserContext)
+   const [data, setData] = useState({data : ''})
 
+   useEffect(() => {
+      ( async () => {
+      let result = await (await fetch('http://localhost:3300/protected', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            authorization: user.accessToken.accessToken,
+          },
+        })).json();
+        await setData(result)
+      })()
+    }, [user])
+    
+    console.log(user.accessToken.accessToken)
   return (
    <Router>
       <NavS>
@@ -21,19 +38,21 @@ export default function Nav() {
               </li>
 
               <li>
-                 { user.accessToken ? <NavLink  to='/account' activeClassName='active' ><p> Аккаунт </p></NavLink>
+                 { user.accessToken.accessToken === '' ? <NavLink  to='/login' activeClassName='active' ><p> Войти </p></NavLink>
 
-                 : <NavLink  to='/login' activeClassName='active' ><p> Войти </p></NavLink> }
+                 : <NavLink  to='/account' activeClassName='active' ><p> Аккаунт </p></NavLink> }
 
               </li>
 
-              { user.accessToken ? <li>
+              { user.accessToken.accessToken === '' ? null : <li>
 
                   <NavLink  to='/logout' activeClassName='active' ><p>Выход</p></NavLink>
 
-              </li> : '' }
+              </li> }
            </ul>
         </nav>
+
+      </NavS> 
 
       <Switch>
 
@@ -54,8 +73,5 @@ export default function Nav() {
 
       </Switch>
 
-
-      </NavS> 
    </Router>)
-   
 }

@@ -3,6 +3,7 @@ import { ajax } from '../middleware/ajax'
 import React , { useState , useContext , useEffect } from 'react'
 
 import { UserContext } from '../context/context'
+import { Redirect } from 'react-router-dom'
 
 export default function Login() {
 
@@ -24,14 +25,11 @@ export default function Login() {
       setBody({ ...body , [event.name] : event.value })
    }
 
-   useEffect( () => {
-
-      
-    } , [user, body] )
+   useEffect( () => {  } , [user, body] )
 
 
 
-
+   if( user.accessToken.accessToken !== '' )return <Redirect to='/'/>
 
    return (<>
       <form onSubmit={(event:any) => { 
